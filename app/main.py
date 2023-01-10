@@ -9,10 +9,16 @@ from app.email_sending import send_suggestion
 
 app = FastAPI()
 
-app.add_middleware(CORSMiddleware,allow_origins=["*"],)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    )
 
 @app.post('/post/email')
-async def posting_email(suggestion: Suggestion):
+def posting_email(suggestion: Suggestion):
     try:
         res = send_suggestion(item= suggestion)
         return JSONResponse(content='success',status_code=status.HTTP_200_OK)
