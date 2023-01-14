@@ -7,7 +7,10 @@ from app.schema import Suggestion
 from app.email_sending import send_suggestion
 
 
-app = FastAPI()
+app = FastAPI(
+    docs_url=None,
+    redoc_url= None,
+)
 
 app.add_middleware(
     CORSMiddleware,
