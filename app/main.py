@@ -23,7 +23,7 @@ app.add_middleware(
 @app.post('/post/email')
 def posting_email(suggestion: Suggestion):
     try:
-        res = send_suggestion(item= suggestion)
+        send_suggestion(item= suggestion)
         return JSONResponse(content='success',status_code=status.HTTP_200_OK)
     except SMTPException as e:
         return JSONResponse(content=e,status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
