@@ -8,7 +8,7 @@ from app.schema import Suggestion
 
 def send_suggestion(item:Suggestion):
     incoming_msg = EmailMessage()
-    incoming_msg['Subject']= f'Suggestion from {item.name}'
+    incoming_msg['Subject']= f'New Suggestion'
     incoming_msg.set_content(item.suggestion)
     mail = smt.SMTP(host=appSetting.hostname,port=appSetting.port)
     mail.starttls()
