@@ -4,8 +4,9 @@ from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.email_sending import send_suggestion
-from app.schema import Suggestion
+from app.mail_handler.email_sending import send_suggestion
+from app.routes import email_router
+from app.schemas.suggestion_schema import Suggestion
 
 app = FastAPI(
     docs_url=None,
@@ -22,12 +23,4 @@ app.add_middleware(
 )
 
 
-@app.post("/post/email")
-def posting_email(suggestion: Suggestion):
-    try:
-        send_suggestion(item=suggestion)
-        return JSONResponse(content="success", status_code=status.HTTP_200_OK)
-    except SMTPException as e:
-        return JSONResponse(
-            content=e, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+app.include_router(email_router)
