@@ -1,1 +1,1 @@
-from mail_routes import email_router
+from .mail_routes import email_router

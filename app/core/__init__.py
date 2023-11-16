@@ -1,1 +1,1 @@
-from settings import appSetting, googleCred
+from .settings import appSetting, googleCred
