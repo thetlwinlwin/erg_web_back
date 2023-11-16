@@ -18,3 +18,8 @@ def send_email(suggestion: Suggestion):
         return JSONResponse(
             content=e, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+
+@email_router.get("/")
+def test():
+    return JSONResponse(content="success", status_code=status.HTTP_200_OK)
