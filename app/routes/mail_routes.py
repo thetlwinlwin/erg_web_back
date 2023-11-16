@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from app.mail_handler.email_sending import send_suggestion
 from app.schemas.suggestion_schema import Suggestion
 
-email_router = APIRouter(prefix="email")
+email_router = APIRouter(prefix="/email")
 
 
 @email_router.post("/")
