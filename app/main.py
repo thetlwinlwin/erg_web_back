@@ -1,12 +1,7 @@
-from smtplib import SMTPException
-
-from fastapi import FastAPI, status
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 
-from app.mail_handler.email_sending import send_suggestion
 from app.routes import email_router
-from app.schemas.suggestion_schema import Suggestion
 
 app = FastAPI(
     docs_url=None,
