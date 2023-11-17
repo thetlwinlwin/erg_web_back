@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import email_router
+from app.routes import email_router, event_router
 
 app = FastAPI(
     docs_url=None,
@@ -19,3 +19,4 @@ app.add_middleware(
 
 
 app.include_router(email_router)
+app.include_router(event_router)
