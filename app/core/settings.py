@@ -1,7 +1,7 @@
 from pydantic import BaseSettings, HttpUrl, validator
 
 
-class AppSetting(BaseSettings):
+class AppSettings(BaseSettings):
     email_name: str
     email_password: str
     hostname: str
@@ -11,7 +11,7 @@ class AppSetting(BaseSettings):
         env_file = ".env"
 
 
-class GoogleCred(BaseSettings):
+class GoogleCredInfo(BaseSettings):
     type: str
     project_id: str
     private_key_id: str
@@ -32,6 +32,5 @@ class GoogleCred(BaseSettings):
         env_file = ".env"
 
 
-appSetting = AppSetting()
-
-googleCred = GoogleCred()
+def get_app_settings():
+    return AppSettings()
