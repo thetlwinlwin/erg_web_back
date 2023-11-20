@@ -10,7 +10,7 @@ class GService:
     def __init__(self, info: GoogleCredInfo):
         self._info = info
 
-    def _build(self, service_type: GServiceTypes, version: str):
+    def build(self, service_type: GServiceTypes, version: str):
         creds: service_account.Credentials = (
             service_account.Credentials.from_service_account_info(
                 info=self._info, scopes=get_scopes(service_type)
@@ -22,12 +22,36 @@ class GService:
             credentials=creds,
         )
 
-    def get_drive(self, version: str = "v3"):
-        return self._build(GServiceTypes.DRIVE, version)
 
-    def get_docs(self, version: str):
-        return self._build(GServiceTypes.DOCS, version)
+class GServiceFactory:
+    def __init__(
+        self,
+        info: GoogleCredInfo,
+    ) -> None:
+        self._info = info
+
+    def get_docs(
+        self,
+        version: str = "v1",
+    ):
+        return GService(
+            info=self._info,
+        ).build(
+            service_type=GServiceTypes.DOCS,
+            version=version,
+        )
+
+    def get_drive(
+        self,
+        version: str = "v3",
+    ):
+        return GService(
+            info=self._info,
+        ).build(
+            service_type=GServiceTypes.DRIVE,
+            version=version,
+        )
 
 
 def get_gservice():
-    return GService(info=GoogleCredInfo().dict())
+    return GServiceFactory(info=GoogleCredInfo().dict())
