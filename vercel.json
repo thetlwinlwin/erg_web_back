@@ -2,7 +2,7 @@
     "version": 2,
     "crons": [
         {
-            "path": "/app/cron/data_update.py",
+            "path": "/events/refresh",
             "schedule": "1 1 1 * *"
         }
     ],

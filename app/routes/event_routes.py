@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import FileResponse, JSONResponse
 
-from app.g_service import FieldNames, GoogleDrive, GService, get_gservice
+from app.g_service import FieldNames, GoogleDrive, GServiceFactory, get_gservice
 
 event_router = APIRouter(prefix="/events")
 
@@ -13,7 +13,7 @@ def get_events():
 
 @event_router.get("/refresh")
 def update_text(
-    g_service: GService = Depends(get_gservice),
+    g_service: GServiceFactory = Depends(get_gservice),
 ):
     service = g_service.get_drive()
     GoogleDrive(service).refresh()
@@ -23,7 +23,7 @@ def update_text(
 @event_router.get("/refresh/{field_name}")
 def refresh_events(
     field_name: FieldNames,
-    g_service: GService = Depends(get_gservice),
+    g_service: GServiceFactory = Depends(get_gservice),
 ):
     service = g_service.get_drive()
     GoogleDrive(service=service).update(field=field_name)
