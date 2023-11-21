@@ -1,5 +1,11 @@
 {
     "version": 2,
+    "cron": [
+        {
+            "path": "/app/cron/data_update.py",
+            "schedule": "1 1 1 * *"
+        }
+    ],
     "builds": [
         {
             "src": "app/main.py",
