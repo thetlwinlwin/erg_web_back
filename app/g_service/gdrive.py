@@ -1,10 +1,11 @@
 import io
 import json
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from googleapiclient.errors import HttpError
 from googleapiclient.http import HttpRequest, MediaIoBaseDownload
 
+from .field_names import FieldNames as FN
 from .mime_types import GoogleMimeTypes as Mime
 
 
@@ -79,33 +80,49 @@ class GoogleDrive:
             )
 
     def refresh(self) -> None:
-        events = self._load_events()
+        events = dict()
         folders = self.get_folders()
         for folder in folders:
             id = folder.get("id")
             name = folder.get("name")
             file_list = self.get_docs(folder_id=id)
             if file_list:
-                details = self._read_doc(id=file_list[0].get("id"))
-            if name not in events.keys():
-                events[name] = {
-                    "name": name,
-                    "id": id,
-                    **details,
-                    "file_info": file_list[0] if file_list else None,
-                    "img_links": self.get_images(folder_id=id),
-                }
+                details = self._read_doc(
+                    id=file_list[0].get("id"),
+                )
+            events[name] = {
+                "name": name,
+                "id": id,
+                **details,
+                "file_info": file_list[0] if file_list else None,
+                "img_links": self.get_images(folder_id=id),
+            }
         self._save_events(events)
 
-    def update_docs(self) -> None:
+    def update(self, field: FN) -> None:
         events = self._load_events()
         for event in events.values():
-            file = event.get("file")
-            if file:
-                details = self._read_doc(
-                    id=file.get("id"),
-                )
-            event.update(details)
+            folder_id = event.get("id")
+            file_id = event.get("file_info").get("id")
+            match field:
+                case FN.title | FN.date | FN.description as key:
+                    details = self._read_doc(id=file_id)
+                    event.update({key.value: details.get(key.value)})
+                case FN.file_info:
+                    file_list = self.get_docs(folder_id=folder_id)
+                    event.update(
+                        {
+                            FN.file_info: file_list[0] if file_list else None,
+                        }
+                    )
+                case FN.img_links:
+                    img_list = self.get_images(folder_id=folder_id)
+                    event.update({FN.img_links: img_list})
+                case _:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="Invalid Request Key",
+                    )
         self._save_events(events)
 
     def _read_doc(self, id: str = None) -> dict:
@@ -119,7 +136,21 @@ class GoogleDrive:
                     result["title"] = val.strip().title()
                 case ["date" | "Date" | "DATE", val]:
                     result["date"] = val.strip()
-                case ["content" | "Content" | "CONTENT", val]:
+                case [
+                    "content"
+                    | "Content"
+                    | "CONTENT"
+                    | "description"
+                    | "Description"
+                    | "DESCRIPTION"
+                    "contents"
+                    | "Contents"
+                    | "CONTENTS"
+                    | "descriptions"
+                    | "Descriptions"
+                    | "DESCRIPTIONS",
+                    val,
+                ]:
                     result["description"] = val.strip().capitalize()
         return result
 
