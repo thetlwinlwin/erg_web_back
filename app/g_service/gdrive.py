@@ -104,25 +104,45 @@ class GoogleDrive:
         for event in events.values():
             folder_id = event.get("id")
             file_id = event.get("file_info").get("id")
-            match field:
-                case FN.title | FN.date | FN.description as key:
-                    details = self._read_doc(id=file_id)
-                    event.update({key.value: details.get(key.value)})
-                case FN.file_info:
-                    file_list = self.get_docs(folder_id=folder_id)
-                    event.update(
-                        {
-                            FN.file_info: file_list[0] if file_list else None,
-                        }
-                    )
-                case FN.img_links:
-                    img_list = self.get_images(folder_id=folder_id)
-                    event.update({FN.img_links: img_list})
-                case _:
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail="Invalid Request Key",
-                    )
+            # match field:
+            #     case FN.title | FN.date | FN.description:
+            #         details = self._read_doc(id=file_id)
+            #         event.update({field.value: details.get(field.value)})
+            #     case FN.file_info:
+            #         file_list = self.get_docs(folder_id=folder_id)
+            #         event.update(
+            #             {
+            #                 FN.file_info: file_list[0] if file_list else None,
+            #             }
+            #         )
+            #     case FN.img_links:
+            #         img_list = self.get_images(folder_id=folder_id)
+            #         event.update({FN.img_links: img_list})
+            #     case _:
+            #         raise HTTPException(
+            #             status_code=status.HTTP_404_NOT_FOUND,
+            #             detail="Invalid Request Key",
+            #         )
+
+            if field == FN.title | FN.date | FN.description:
+                details = self._read_doc(id=file_id)
+                event.update({field.value: details.get(field.value)})
+            elif field == FN.file_info:
+                file_list = self.get_docs(folder_id=folder_id)
+                event.update(
+                    {
+                        FN.file_info: file_list[0] if file_list else None,
+                    }
+                )
+            elif field == FN.img_links:
+                img_list = self.get_images(folder_id=folder_id)
+                event.update({FN.img_links: img_list})
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Invalid Request Key",
+                )
+
         self._save_events(events)
 
     def _read_doc(self, id: str = None) -> dict:
@@ -131,27 +151,49 @@ class GoogleDrive:
         txt_list = res_txt.split("\n")
         result = dict()
         for txt in txt_list:
-            match txt.split("-"):
-                case ["title" | "Title" | "TITLE", val]:
-                    result["title"] = val.strip().title()
-                case ["date" | "Date" | "DATE", val]:
-                    result["date"] = val.strip()
-                case [
-                    "content"
-                    | "Content"
-                    | "CONTENT"
-                    | "description"
-                    | "Description"
-                    | "DESCRIPTION"
-                    "contents"
-                    | "Contents"
-                    | "CONTENTS"
-                    | "descriptions"
-                    | "Descriptions"
-                    | "DESCRIPTIONS",
-                    val,
-                ]:
-                    result["description"] = val.strip().capitalize()
+            txt_result = txt.split(":")
+            # match txt_result:
+            #     case ["title" | "Title" | "TITLE", val]:
+            #         result["title"] = val.strip().title()
+            #     case ["date" | "Date" | "DATE", val]:
+            #         result["date"] = val.strip()
+            #     case [
+            #         "content"
+            #         | "Content"
+            #         | "CONTENT"
+            #         | "description"
+            #         | "Description"
+            #         | "DESCRIPTION"
+            #         | "contents"
+            #         | "Contents"
+            #         | "CONTENTS"
+            #         | "descriptions"
+            #         | "Descriptions"
+            #         | "DESCRIPTIONS",
+            #         val,
+            #     ]:
+            #         result["description"] = val.strip().capitalize()
+
+            if txt_result[0] in ["title", "Title", "TITLE"]:
+                result["title"] = txt_result[1].strip().title()
+            elif txt_result[0] in ["date", "Date", "DATE"]:
+                result["date"] = txt_result[1].strip()
+            elif txt_result[0] in [
+                "content",
+                "Content",
+                "CONTENT",
+                "description",
+                "Description",
+                "DESCRIPTION",
+                "contents",
+                "Contents",
+                "CONTENTS",
+                "descriptions",
+                "Descriptions",
+                "DESCRIPTIONS",
+            ]:
+                result["description"] = txt_result[1].strip().capitalize()
+
         return result
 
     def _load_events(self) -> dict:
