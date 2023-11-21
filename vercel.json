@@ -1,6 +1,6 @@
 {
     "version": 2,
-    "cron": [
+    "crons": [
         {
             "path": "/app/cron/data_update.py",
             "schedule": "1 1 1 * *"
