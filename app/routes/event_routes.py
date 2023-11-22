@@ -12,7 +12,7 @@ def get_events():
 
 
 @event_router.get("/refresh")
-def update_text(
+def refresh_events(
     g_service: GServiceFactory = Depends(get_gservice),
 ):
     service = g_service.get_drive()
@@ -21,7 +21,7 @@ def update_text(
 
 
 @event_router.get("/refresh/{field_name}")
-def refresh_events(
+def update_events_field(
     field_name: FieldNames,
     g_service: GServiceFactory = Depends(get_gservice),
 ):
